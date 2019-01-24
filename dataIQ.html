@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>IQ</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+  </head>
+  <body>
+    <div style="font-family: 'Montserrat', sans-serif;" class="container">
+
+      <h1>Usuarios: </h1>
+
+      <div class="container" id="options">
+
+        <div>
+            <input type="radio" id="name" name="drone" value="name">
+            <label for="name">Ordenar por nombre</label>
+        </div>
+
+        <div>
+            <input type="radio" id="email" name="drone" value="email">
+            <label for="email">Ordenar por email</label>
+        </div>
+
+      </div>
+
+      <div>
+        <ul style="list-style:none;" id="userList">
+
+        </ul>
+      </div>
+
+    </div>
+
+    <script>
+      window.addEventListener("load", function () {
+      let divGral = document.getElementById('options');
+      let inputName = document.getElementById('name');
+      let inputEmail = document.getElementById('email');
+      let array = [];
+
+
+      divGral.addEventListener("change", function () {
+        userList.innerHTML = "";
+
+        fetch(`http://jsonplaceholder.typicode.com/users`)
+          .then(response => response.json())
+          .then(users => {
+
+            if(inputName.checked) {
+              users.sort(function(a, b){
+              	return a.name.localeCompare(b.name);
+              });
+            }else if(inputEmail.checked) {
+              users.sort(function(a, b){
+              	return a.email.localeCompare(b.email);
+              });
+            }
+
+            users.forEach(user => {
+              userList.innerHTML += `
+              <li>
+                <h4><b>NOMBRE:</b> ${user.name}</h4>
+                <h4><b>EMAIL:</b> ${user.email}</h4>
+                <h4><b>DIRECCION:</b> ${user.address.suite}, ${user.address.street}, ${user.address.city}</h4>
+                <h4><b>TELEFONO:</b> ${user.phone}</h4>
+                <hr/>
+              </li>
+              `;
+            })
+          })
+
+          .catch(error => console.log(error));
+
+      });
+    })
+
+    </script>
+  </body>
+</html>
