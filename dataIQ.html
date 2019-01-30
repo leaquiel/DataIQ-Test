@@ -7,25 +7,20 @@
     <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
   </head>
   <body>
+
     <div style="font-family: 'Montserrat', sans-serif;" class="container">
 
-      <h1>Usuarios: </h1>
-
-      <div class="container" id="options">
-
-        <div>
-            <input type="radio" id="name" name="drone" value="name">
-            <label for="name">Ordenar por nombre</label>
-        </div>
-
-        <div>
-            <input type="radio" id="email" name="drone" value="email">
-            <label for="email">Ordenar por email</label>
-        </div>
-
+      <div  style="display: flex; justify-content: center;" >
+        <label> <h2>Buscador de usuarios</h2>
+          <input autofocus id="search" style="width: 100%" type="text" placeholder="Ingrese nombre o email">
+        </label>
       </div>
 
+      <hr>
+
       <div>
+        <h1>Usuarios: </h1>
+
         <ul style="list-style:none;" id="userList">
 
         </ul>
@@ -35,42 +30,82 @@
 
     <script>
       window.addEventListener("load", function () {
-      let divGral = document.getElementById('options');
-      let inputName = document.getElementById('name');
-      let inputEmail = document.getElementById('email');
-      let array = [];
+      let search = document.getElementById('search');
+      console.log(search.value);
 
 
-      divGral.addEventListener("change", function () {
+      fetch(`http://jsonplaceholder.typicode.com/users`)
+      .then(response => response.json())
+      .then(users => {
+
+        users.forEach(user => {
+
+            userList.innerHTML += `
+            <li>
+              <h4><b>NOMBRE:</b> ${user.name}</h4>
+              <h4><b>EMAIL:</b> ${user.email}</h4>
+              <h4><b>DIRECCION:</b> ${user.address.suite}, ${user.address.street}, ${user.address.city}</h4>
+              <h4><b>TELEFONO:</b> ${user.phone}</h4>
+              <hr/>
+            </li>
+            `;
+          })
+      })
+      .catch(error => console.log(error));
+
+      search.addEventListener("keyup", function () {
         userList.innerHTML = "";
+
+        var regex = new RegExp(search.value , "gi");
 
         fetch(`http://jsonplaceholder.typicode.com/users`)
           .then(response => response.json())
           .then(users => {
 
-            if(inputName.checked) {
-              users.sort(function(a, b){
-              	return a.name.localeCompare(b.name);
-              });
-            }else if(inputEmail.checked) {
-              users.sort(function(a, b){
-              	return a.email.localeCompare(b.email);
-              });
-            }
-
             users.forEach(user => {
-              userList.innerHTML += `
-              <li>
-                <h4><b>NOMBRE:</b> ${user.name}</h4>
-                <h4><b>EMAIL:</b> ${user.email}</h4>
-                <h4><b>DIRECCION:</b> ${user.address.suite}, ${user.address.street}, ${user.address.city}</h4>
-                <h4><b>TELEFONO:</b> ${user.phone}</h4>
-                <hr/>
-              </li>
-              `;
-            })
-          })
 
+              if(user.name.toUpperCase().indexOf(search.value.toUpperCase())  == 0){
+
+                var nombre = user.name.replace(regex, function (x) {
+                  return x.bold().fontcolor('blue');
+                });
+                // console.log(nombre);
+                // console.log(search.value);
+                // console.log(regex);
+
+                userList.innerHTML += `
+                <li>
+                  <h4><b>NOMBRE:</b> ${nombre}</h4>
+                  <h4><b>EMAIL:</b> ${user.email}</h4>
+                  <h4><b>DIRECCION:</b> ${user.address.suite}, ${user.address.street}, ${user.address.city}</h4>
+                  <h4><b>TELEFONO:</b> ${user.phone}</h4>
+                  <hr/>
+                </li>
+                `;
+              } else if(user.email.toUpperCase().indexOf(search.value.toUpperCase()) == 0){
+
+                var email = user.email.replace(regex, function (x) {
+                  return x.bold().fontcolor('blue');
+                });
+
+                userList.innerHTML += `
+                <li>
+                  <h4><b>NOMBRE:</b> ${user.name}</h4>
+                  <h4><b>EMAIL:</b> ${email}</h4>
+                  <h4><b>DIRECCION:</b> ${user.address.suite}, ${user.address.street}, ${user.address.city}</h4>
+                  <h4><b>TELEFONO:</b> ${user.phone}</h4>
+                  <hr/>
+                </li>
+                `;
+              }
+            })
+            // console.log(userList.children.length);
+            if (userList.children.length == 0) {
+              userList.innerHTML = `
+              <h3>No hay ningun nombre o email que concida</h3>
+              `;
+            }
+          })
           .catch(error => console.log(error));
 
       });
